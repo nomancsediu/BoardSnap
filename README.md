@@ -13,7 +13,7 @@
 
 </div>
 
-> **Live app:** [boardsnap.onrender.com](https://boardsnap.onrender.com/) &nbsp;·&nbsp; **Demo video:** _link coming soon_ &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
+> **Live app:** [boardsnap.onrender.com](https://boardsnap.onrender.com/) &nbsp;·&nbsp; **Demo video:** [YouTube](https://youtu.be/KmzvXxoKW8k) &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
 
 ## Problem Statement
 
