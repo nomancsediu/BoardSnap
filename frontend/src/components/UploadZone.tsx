@@ -20,10 +20,10 @@ export default function UploadZone({ onFile, onSample, sampleLoading }: Props) {
   return (
     <div className="space-y-3">
       <label
-        className={`group flex min-h-[200px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed px-6 py-10 cursor-pointer transition-all duration-300 sm:min-h-[250px] sm:px-8 sm:py-12 ${
+        className={`group flex min-h-[200px] flex-col items-center justify-center gap-4 rounded-2xl border px-6 py-10 cursor-pointer transition-all duration-300 sm:min-h-[250px] sm:px-8 sm:py-12 ${
           dragging
             ? 'border-accent bg-mist'
-            : 'border-board/20 bg-mist/50 hover:border-accent-dark/50 hover:bg-mist/80'
+            : 'border-board/15 bg-mist/50 hover:border-accent-dark/50 hover:bg-mist/80'
         }`}
         onDragOver={(e) => {
           e.preventDefault()
@@ -59,9 +59,9 @@ export default function UploadZone({ onFile, onSample, sampleLoading }: Props) {
           type="button"
           onClick={onSample}
           disabled={sampleLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-board/10 bg-white px-4 py-3.5 text-sm font-semibold text-board transition-colors hover:border-accent-dark/40 hover:bg-mist disabled:opacity-60"
+          className="w-full rounded-2xl bg-accent-dark px-4 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:opacity-60"
         >
-          {sampleLoading ? 'Loading sample…' : 'Try sample board — no upload needed'}
+          {sampleLoading ? 'Loading sample…' : 'Try sample board'}
         </button>
       )}
     </div>

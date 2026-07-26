@@ -43,8 +43,10 @@ Your job is to digitize the board into a structured study pack. Follow these rul
    otherwise keep language as "pseudocode").
 5. Create 6-10 flashcards and 3-5 multiple-choice quiz questions that test the ACTUAL content
    of the board, including tracing outputs for specific inputs when code is present.
-6. Math: write every formula in LaTeX. Use $...$ for inline math and $$...$$ on its own lines
-   for displayed equations. Never write formulas as plain text or unicode symbols.
+6. Math: write every formula in LaTeX on ONE line. Use $...$ for inline and $$...$$
+   (on their own lines) for display equations. Examples: $0 \\le A \\le 10$, $A > 10$,
+   $\\text{{count}} = \\text{{count}} + 1$. NEVER spell operators as separate letters
+   (wrong: 0 l e A). NEVER put each symbol on its own line.
 7. Keep "warnings" short and concrete - only genuinely illegible or ambiguous handwriting,
    one short line each. Do not add interpretation, speculation or general commentary.
 8. Add 3-5 "related_topics" — concrete next topics a Bangladeshi student should study after
@@ -116,6 +118,45 @@ def _fix_invalid_escapes(blob: str) -> str:
     return "".join(out)
 
 
+# LaTeX commands whose first letter is also a valid JSON escape, so json.loads()
+# silently turns e.g. "\frac" into FORMFEED + "rac". Restore the backslash.
+_LATEX_CONTROL_REPAIRS: list[tuple[str, str]] = [
+    (f"\x0c{tail}", f"\\f{tail}") for tail in ("rac", "orall", "lat", "box")
+] + [
+    (f"\x08{tail}", f"\\b{tail}")
+    for tail in ("egin", "eta", "ar", "inom", "ullet", "oldsymbol", "mod", "ig")
+] + [
+    (f"\t{tail}", f"\\t{tail}")
+    for tail in ("ext", "imes", "heta", "au", "frac", "riangle", "ilde", "op")
+] + [
+    (f"\r{tail}", f"\\r{tail}")
+    for tail in ("ightarrow", "ight", "angle", "ho", "brack")
+] + [
+    (f"\n{tail}", f"\\n{tail}") for tail in ("abla", "onumber", "eq ", "u_")
+]
+
+
+def _repair_latex_control_chars(value: str) -> str:
+    """Undo JSON escapes that ate LaTeX backslashes (\\frac, \\theta, \\rho ...)."""
+    if not value:
+        return value
+    for broken, fixed in _LATEX_CONTROL_REPAIRS:
+        if broken in value:
+            value = value.replace(broken, fixed)
+    return value
+
+
+def _repair_tree(node):
+    """Recursively repair LaTeX escapes in every string of a parsed JSON tree."""
+    if isinstance(node, str):
+        return _repair_latex_control_chars(node)
+    if isinstance(node, list):
+        return [_repair_tree(item) for item in node]
+    if isinstance(node, dict):
+        return {key: _repair_tree(val) for key, val in node.items()}
+    return node
+
+
 def _extract_json(text: str) -> dict:
     """Parse model output into a dict, tolerating fences and bad escapes."""
     text = text.strip()
@@ -127,11 +168,11 @@ def _extract_json(text: str) -> dict:
         raise ValueError("Model response contained no JSON object")
     blob = text[start : end + 1]
     try:
-        return json.loads(blob)
+        return _repair_tree(json.loads(blob))
     except json.JSONDecodeError as first_err:
         repaired = _fix_invalid_escapes(blob)
         try:
-            return json.loads(repaired)
+            return _repair_tree(json.loads(repaired))
         except json.JSONDecodeError:
             logger.warning("JSON parse failed even after escape repair: %s", first_err)
             raise ValueError(f"Invalid JSON from model: {first_err}") from first_err
@@ -187,8 +228,62 @@ def _text_client_call(prompt: str, temperature: float = 0.3) -> dict:
         raise
 
 
+def _unwrap_markdown_payload(raw: str, json_key: str) -> str:
+    """Return clean markdown from raw model output (plain MD or JSON wrapper)."""
+    text = raw.strip()
+    if not text:
+        return ""
+
+    fence = re.search(r"```(?:markdown|md|json)?\s*(.*?)```", text, re.DOTALL)
+    if fence:
+        text = fence.group(1).strip()
+
+    # Proper JSON object
+    if text.startswith("{") and json_key in text:
+        try:
+            data = _extract_json(text)
+            got = str(data.get(json_key, "")).strip()
+            if got:
+                return got
+        except ValueError:
+            pass
+
+        # Salvage broken JSON where quotes inside the markdown broke parsing.
+        m = re.search(
+            rf'"{re.escape(json_key)}"\s*:\s*"(.*)"\s*\}}\s*$',
+            text,
+            re.DOTALL,
+        )
+        if m:
+            salvaged = (
+                m.group(1)
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+                .replace('\\"', '"')
+                .replace("\\\\", "\\")
+            )
+            return salvaged.strip()
+
+        # Last resort: strip the JSON key wrapper if the model echoed it literally.
+        m2 = re.search(
+            rf'\{{\s*"{re.escape(json_key)}"\s*:\s*"(.*)"\s*\}}\s*$',
+            text,
+            re.DOTALL,
+        )
+        if m2:
+            return (
+                m2.group(1)
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+                .replace('\\"', '"')
+                .replace("\\\\", "\\")
+            ).strip()
+
+    return text
+
+
 def _markdown_from_model(prompt: str, json_key: str, temperature: float = 0.25) -> str:
-    """Ask Gemma for JSON {json_key: markdown}; fall back to raw markdown if needed."""
+    """Ask Gemma for markdown. Avoid JSON mime-type (quotes/LaTeX break it)."""
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     response = client.models.generate_content(
         model=MODEL_ID,
@@ -196,30 +291,20 @@ def _markdown_from_model(prompt: str, json_key: str, temperature: float = 0.25) 
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
             temperature=temperature,
-            response_mime_type="application/json",
         ),
     )
     raw = (response.text or "").strip()
     logger.info("Gemma markdown response length: %d chars", len(raw))
-
     if not raw:
         raise ValueError("Empty response from model")
 
-    # Prefer structured JSON when present.
-    if "{" in raw:
-        try:
-            data = _extract_json(raw)
-            text = str(data.get(json_key, "")).strip()
-            if text:
-                return text
-        except ValueError as err:
-            logger.warning("Markdown JSON parse failed (%s); using raw text fallback", err)
-
-    # Model sometimes ignores JSON and returns markdown / fenced markdown.
-    fence = re.search(r"```(?:markdown|md)?\s*(.*?)```", raw, re.DOTALL)
-    if fence:
-        return fence.group(1).strip()
-    return raw
+    text = _unwrap_markdown_payload(raw, json_key)
+    if not text:
+        raise ValueError("Empty markdown from model")
+    # If unwrap somehow still left a JSON envelope, strip a leading key line.
+    if text.lstrip().startswith("{") and json_key in text[:80]:
+        text = _unwrap_markdown_payload(text, json_key)
+    return _repair_latex_control_chars(text)
 
 
 def generate_more_quiz(
@@ -272,14 +357,14 @@ algorithms, flowcharts, or code logic. Teach like a careful teacher at a whitebo
 Title: {title or "Lecture notes"}
 
 Rules:
-- Write Markdown with numbered steps
+- Respond with Markdown ONLY (no JSON, no code fences around the whole answer)
+- Use numbered steps
 - For each formula or code block: say WHAT it is, WHY it appears, and HOW to apply it
-- Use LaTeX ($...$ / $$...$$) for math
+- Write ALL math in LaTeX with dollar signs, e.g. $0 \\le A \\le 10$ or $$count = count + 1$$
+- Never write Greek/operators letter-by-letter (wrong: 0 l e A). Always use LaTeX.
 - Keep short bilingual hints in Bangla where a hard idea needs grounding
 - Do NOT invent content that is not in the notes or code
 - End with a 3-bullet "Common mistakes" section
-- Escape newlines in the JSON string as \\n and quotes as \\"
-- Do NOT wrap the JSON in markdown fences
 
 Notes:
 \"\"\"
@@ -290,9 +375,6 @@ Code / pseudocode from the board:
 \"\"\"
 {code_block[:4000]}
 \"\"\"
-
-Return ONLY a single JSON object (no other text):
-{{"logic_markdown":"# Step 1\\n...markdown content..."}}
 """
     text = _markdown_from_model(prompt, "logic_markdown", temperature=0.25)
     if not text:
@@ -343,22 +425,18 @@ understand. Keep essential English technical terms, but explain each one in Bang
 Title: {title or "Lecture notes"}
 
 Rules:
-- Write Markdown
+- Respond with Markdown ONLY (no JSON, no code fences around the whole answer)
 - Short sections with headings
 - Use everyday Bangla examples where helpful
-- Use LaTeX ($...$ / $$...$$) for formulas
+- Write ALL math in LaTeX with dollar signs, e.g. $0 \\le A \\le 10$
+- Never write operators letter-by-letter
 - Do NOT invent content that is not in the notes
 - End with a 3-bullet "মনে রাখো" summary
-- Escape newlines in the JSON string as \\n and quotes as \\"
-- Do NOT wrap the JSON in markdown fences
 
 Notes:
 \"\"\"
 {notes_markdown[:12000]}
 \"\"\"
-
-Return ONLY a single JSON object (no other text):
-{{"explanation_markdown":"# শিরোনাম\\n...markdown content..."}}
 """
     text = _markdown_from_model(prompt, "explanation_markdown", temperature=0.25)
     if not text:

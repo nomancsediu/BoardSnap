@@ -10,6 +10,8 @@ Snap a photo of a messy, multilingual (Bangla + English) whiteboard — BoardSna
 - **Flashcards** — 6–10 flip cards testing the actual board content
 - **Quiz** — multiple-choice questions with instant scoring
 - **Honest OCR** — illegible parts go to a *warnings* panel instead of being silently invented
+- **Easy Bangla** + **Step-by-step logic** — Smart Tutor extras
+- **Print / PDF** — clean study notes for revision
 
 Output language is selectable: **বাংলা / English / Bilingual**.
 
@@ -44,10 +46,39 @@ React frontend (Vite + Tailwind) ──► FastAPI /api/generate
 - **Key prompt rules:** transcribe faithfully, never invent content, report illegible
   regions as warnings, image part placed before text (required by Gemma 4 multimodal).
 
-## Run locally
+## Deploy on Render (recommended)
+
+1. Push this repo to GitHub.
+2. [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
+   - OR **New Web Service** → connect the repo → **Docker** runtime.
+3. Set environment variable:
+   - `GEMINI_API_KEY` = your key from [Google AI Studio](https://aistudio.google.com/apikey)
+   - Optional: `GEMMA_MODEL=gemma-4-26b-a4b-it`
+4. Health check path: `/api/health`
+5. Deploy. Render sets `$PORT` automatically — the Dockerfile already uses it.
+
+`render.yaml` in the repo is ready for one-click Blueprint deploy.
+
+## Docker (local)
 
 ```bash
-# 1. API key (https://aistudio.google.com/apikey)
+# 1. Put your key in .env
+cp .env.example .env   # then paste GEMINI_API_KEY
+
+# 2. Build & run
+docker compose up --build
+
+# Or without compose:
+docker build -t boardsnap .
+docker run -p 8000:8000 -e GEMINI_API_KEY=your-key boardsnap
+```
+
+Open http://localhost:8000
+
+## Run locally (dev)
+
+```bash
+# 1. API key
 cp .env.example .env   # then paste your GEMINI_API_KEY
 
 # 2. Backend
@@ -61,9 +92,7 @@ cd frontend && npm install && npm run build && cd ..
 cd backend && ../.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-Open http://localhost:8000
-
-### Development mode (hot reload)
+### Hot reload
 
 ```bash
 # terminal 1
@@ -72,17 +101,14 @@ cd backend && ../.venv/bin/uvicorn main:app --reload
 cd frontend && npm run dev   # http://localhost:5173, proxies /api to :8000
 ```
 
-## Docker
-
-```bash
-docker build -t boardsnap .
-docker run -p 8000:8000 -e GEMINI_API_KEY=your-key boardsnap
-```
-
 ## API
 
 - `GET /api/health` — model + key status
-- `POST /api/generate` — multipart form: `image` (file), `output_language` (`bangla` | `english` | `bilingual`)
+- `POST /api/generate` — multipart: `image`, `output_language` (`bangla` | `english` | `bilingual`)
+- `POST /api/explain-bangla` — simple Bangla explanation
+- `POST /api/step-logic` — step-by-step tutor walkthrough
+- `POST /api/more-quiz` — generate more quiz questions
+- `POST /api/more-flashcards` — generate more flashcards
 
 ## Limitations & future work
 

@@ -89,16 +89,74 @@ body {
 .prose-notes th { background: #e8f6ee; font-weight: 600; }
 .prose-notes blockquote { border-left: 3px solid #3dd68c; padding-left: 1rem; color: #3d554a; margin: 0.85rem 0; }
 
-/* KaTeX math */
+/* KaTeX math.
+   KaTeX positions its own SVGs (sqrt, stretchy delimiters) with
+   display:block + position:absolute, so never override those. */
 .prose-notes .katex {
-  font-size: 1.04em;
+  font-size: 1.08em;
+  line-height: 1.2;
+  text-indent: 0;
 }
 .prose-notes .katex-display {
-  margin: 1rem 0;
-  padding: 0.85rem 1rem;
+  margin: 1.1rem 0;
+  padding: 0.95rem 1.1rem;
   background: #f3faf6;
   border: 1px solid #d9ede2;
   border-radius: 0.85rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.prose-notes .katex-display > .katex {
+  white-space: nowrap;
+}
+
+/* Compact math for flashcards + quiz (no big prose margins) */
+.math-inline p {
+  margin: 0;
+  line-height: 1.55;
+}
+.math-inline .katex {
+  font-size: 1.05em;
+}
+.math-inline .katex-display {
+  margin: 0.65rem 0;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.65rem;
+  overflow-x: auto;
+}
+.prose-quiz .katex-display {
+  background: #f3faf6;
+  border: 1px solid #d9ede2;
+}
+.prose-flash {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+.prose-flash .katex {
+  color: inherit;
+}
+
+/* Excali-style direct KaTeX (quiz / flashcards) */
+.math-text {
+  line-height: 1.55;
+}
+.math-text-inline {
+  display: inline;
+}
+.math-text-display {
+  display: block;
+  margin: 0.55rem 0;
+  overflow-x: auto;
+}
+.math-text .katex {
+  font-size: 1.08em;
+}
+.math-text .katex-display {
+  margin: 0.4rem 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
@@ -119,8 +177,34 @@ body {
   animation: pulse-soft 1.6s ease-in-out infinite;
 }
 
-/* Print / Save as PDF — clean notes only */
+@keyframes scanBeam {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 95%; opacity: 0; }
+}
+.scan-beam {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(61, 214, 140, 0.08) 35%,
+    rgba(61, 214, 140, 0.45) 50%,
+    rgba(61, 214, 140, 0.08) 65%,
+    transparent 100%
+  );
+  box-shadow: 0 0 24px rgba(61, 214, 140, 0.25);
+  animation: scanBeam 2.4s ease-in-out infinite;
+}
+
+#print-sheet .print-related {
+  display: none;
+}
+
+/* Print / Save as PDF — clean notes only (fallback if popup blocked) */
 @media print {
+  @page {
+    margin: 16mm 14mm;
+  }
   body {
     background: white !important;
     color: black !important;
@@ -132,12 +216,15 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
-  .print-notes .prose-notes {
+  .print-notes .prose-notes,
+  #print-sheet .prose-notes {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    background: transparent !important;
   }
-  .print-notes .katex-display {
+  .print-notes .katex-display,
+  #print-sheet .katex-display {
     background: transparent !important;
     border: none !important;
   }

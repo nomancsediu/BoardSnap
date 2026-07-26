@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Flashcard } from '../types'
+import MathText from './MathText'
 
 interface Props {
   cards: Flashcard[]
@@ -82,7 +83,7 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
 
       {cards.length === 0 ? (
         <p className="py-10 text-center text-muted">
-          No flashcards yet — generate harder cards from your notes.
+          No flashcards yet. Generate harder cards from your notes.
         </p>
       ) : (
         <>
@@ -95,19 +96,21 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
             onClick={() => setFlipped((f) => !f)}
           >
             <div className="flip-card-inner h-80 w-full">
-              <div className="flip-face absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[1.75rem] bg-board p-10 text-center shadow-xl">
+              <div className="flip-face absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.75rem] bg-board p-8 text-center shadow-xl sm:p-10">
                 <span className="text-[11px] font-bold tracking-[0.2em] text-accent uppercase">
                   Question
                 </span>
-                <p className="font-display text-xl font-semibold leading-relaxed text-chalk">
+                <MathText className="prose-flash w-full text-chalk">
                   {cards[index].question}
-                </p>
+                </MathText>
               </div>
-              <div className="flip-face flip-back absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[1.75rem] bg-accent-dark p-10 text-center shadow-xl">
+              <div className="flip-face flip-back absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.75rem] bg-accent-dark p-8 text-center shadow-xl sm:p-10">
                 <span className="text-[11px] font-bold tracking-[0.2em] text-white/80 uppercase">
                   Answer
                 </span>
-                <p className="text-lg font-medium leading-relaxed text-white">{cards[index].answer}</p>
+                <MathText className="prose-flash w-full text-white">
+                  {cards[index].answer}
+                </MathText>
               </div>
             </div>
           </div>

@@ -1,10 +1,6 @@
 import { useMemo, useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
-import 'katex/dist/katex.min.css'
 import Modal from './components/Modal'
+import MathMarkdown from './components/MathMarkdown'
 import UploadZone from './components/UploadZone'
 import ProcessingOverlay from './components/ProcessingOverlay'
 import FlashcardsTab from './components/FlashcardsTab'
@@ -37,7 +33,6 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('notes')
   const [boardModal, setBoardModal] = useState(false)
   const [warningsModal, setWarningsModal] = useState(false)
-  const [copiedNotes, setCopiedNotes] = useState(false)
   const [banglaExplain, setBanglaExplain] = useState('')
   const [explainLoading, setExplainLoading] = useState(false)
   const [explainError, setExplainError] = useState('')
@@ -113,13 +108,6 @@ export default function App() {
     setWarningsModal(false)
   }
 
-  const copyNotes = async () => {
-    if (!result) return
-    await navigator.clipboard.writeText(result.study_pack.notes_markdown)
-    setCopiedNotes(true)
-    setTimeout(() => setCopiedNotes(false), 1500)
-  }
-
   const requestBanglaExplain = async () => {
     if (!result) return
     setShowExplain(true)
@@ -153,7 +141,11 @@ export default function App() {
     if (!result) return
     setShowStep(true)
     setShowExplain(false)
-    if (stepLogic) return
+    // Skip cache if previous response was a broken JSON envelope.
+    const cachedLooksBroken =
+      !!stepLogic &&
+      (stepLogic.trimStart().startsWith('{') || stepLogic.includes('"logic_markdown"'))
+    if (stepLogic && !cachedLooksBroken) return
     setStepLoading(true)
     setStepError('')
     try {
@@ -173,7 +165,24 @@ export default function App() {
         throw new Error(detail?.detail ?? `Server error (${res.status})`)
       }
       const data = await res.json()
-      setStepLogic(data.logic_markdown ?? '')
+      let md = (data.logic_markdown ?? '').trim()
+      // Client-side unwrap if backend ever returns a JSON string envelope.
+      if (md.startsWith('{') && md.includes('logic_markdown')) {
+        try {
+          const inner = JSON.parse(md)
+          if (typeof inner.logic_markdown === 'string') md = inner.logic_markdown
+        } catch {
+          const m = md.match(/"logic_markdown"\s*:\s*"([\s\S]*)"\s*\}\s*$/)
+          if (m) {
+            md = m[1]
+              .replace(/\\n/g, '\n')
+              .replace(/\\t/g, '\t')
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, '\\')
+          }
+        }
+      }
+      setStepLogic(md)
     } catch (e) {
       setStepError(e instanceof Error ? e.message : 'Failed to generate step-by-step logic')
     } finally {
@@ -209,29 +218,128 @@ export default function App() {
     )
   }
 
-  const downloadMarkdown = () => {
-    if (!result) return
-    const pack = result.study_pack
-    const parts = [
-      `# ${pack.title}\n`,
-      pack.notes_markdown,
-      ...pack.code_snippets.map(
-        (s) => `\n## Code: ${s.title}\n\n\`\`\`${s.language}\n${s.code}\n\`\`\`\n\n${s.explanation}`,
-      ),
-      '\n## Flashcards\n',
-      ...pack.flashcards.map((c, i) => `${i + 1}. **Q:** ${c.question}\n   **A:** ${c.answer}`),
-    ]
-    const blob = new Blob([parts.join('\n')], { type: 'text/markdown' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = 'study-pack.md'
-    a.click()
-  }
-
   const printNotes = () => {
+    if (!result) return
     setTab('notes')
-    // Let React paint the notes tab before the browser print dialog opens.
-    requestAnimationFrame(() => window.print())
+
+    // Print from a blank window so PDF has no "BoardSnap" title or localhost URL.
+    requestAnimationFrame(() => {
+      const sheet = document.getElementById('print-sheet')
+      if (!sheet) {
+        window.print()
+        return
+      }
+
+      const title = result.study_pack.title
+      const safeTitle = title
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+
+      const styles = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"], style'),
+      )
+        .map((el) => el.outerHTML)
+        .join('\n')
+
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>${safeTitle}</title>
+${styles}
+<style>
+  @page { margin: 16mm 14mm; size: auto; }
+  html, body {
+    background: #fff !important;
+    color: #15261f !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .print-doc { max-width: 720px; margin: 0 auto; }
+  .print-doc h1 {
+    font-family: Fraunces, Georgia, serif;
+    font-size: 22pt;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 18px;
+    color: #0c2920;
+  }
+  .print-doc .prose-notes {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+  .print-doc .katex-display {
+    background: transparent !important;
+    border: none !important;
+    padding: 0.4rem 0 !important;
+  }
+  .print-related {
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid #d9ede2;
+  }
+  .print-related h2 {
+    font-family: Fraunces, Georgia, serif;
+    font-size: 13pt;
+    margin: 0 0 8px;
+    color: #0c2920;
+  }
+  .print-related ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    line-height: 1.6;
+  }
+  /* Hide screen-only chrome copied into the sheet */
+  .no-print { display: none !important; }
+  #print-sheet .print-related { display: block !important; }
+</style>
+</head>
+<body>
+  <div class="print-doc">
+    <h1>${safeTitle}</h1>
+    ${sheet.innerHTML}
+  </div>
+</body>
+</html>`
+
+      const w = window.open('', '_blank', 'noopener,noreferrer')
+      if (!w) {
+        // Popup blocked — fall back to on-page print.
+        const prev = document.title
+        document.title = title
+        window.print()
+        document.title = prev
+        return
+      }
+
+      w.document.open()
+      w.document.write(html)
+      w.document.close()
+
+      const run = () => {
+        try {
+          w.focus()
+          w.print()
+        } finally {
+          // Close after print dialog interaction when possible.
+          setTimeout(() => {
+            try {
+              w.close()
+            } catch {
+              /* ignore */
+            }
+          }, 400)
+        }
+      }
+
+      if (w.document.readyState === 'complete') setTimeout(run, 300)
+      else w.addEventListener('load', () => setTimeout(run, 300))
+    })
   }
 
   return (
@@ -267,17 +375,33 @@ export default function App() {
                   <span className="text-accent-dark">Interactive study pack out.</span>
                 </h1>
                 <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
-                  Snap a photo of your class board — Gemma 4 turns it into clean notes, code,
-                  flashcards, and a quiz. Reads Bangla and English, even when the board is messy.
+                  Snap your class board. BoardSnap turns messy Bangla and English notes into a
+                  clean study pack with notes, code, flashcards, and a quiz.
                 </p>
 
-                <div className="mt-7 flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-ink/75 sm:mt-8 sm:gap-4 sm:text-base lg:justify-start">
-                  <span>1 · Snap</span>
-                  <span className="hidden h-px w-8 bg-board/20 sm:block" />
-                  <span>2 · Digitize</span>
-                  <span className="hidden h-px w-8 bg-board/20 sm:block" />
-                  <span>3 · Study</span>
-                </div>
+                <ol className="mx-auto mt-8 grid max-w-md grid-cols-3 gap-2 sm:mt-10 sm:max-w-none sm:gap-3 lg:mx-0">
+                  {[
+                    { n: '01', title: 'Snap', blurb: 'Board photo' },
+                    { n: '02', title: 'Digitize', blurb: 'Gemma reads it' },
+                    { n: '03', title: 'Study', blurb: 'Notes & quiz' },
+                  ].map((step, i) => (
+                    <li key={step.n} className="relative text-center lg:text-left">
+                      {i < 2 && (
+                        <span
+                          aria-hidden
+                          className="absolute top-5 left-[calc(50%+28px)] hidden h-px w-[calc(100%-40px)] bg-gradient-to-r from-accent-dark/50 to-accent-dark/10 sm:block lg:left-[56px] lg:w-[calc(100%-28px)]"
+                        />
+                      )}
+                      <div className="relative mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-board font-display text-sm font-bold text-accent shadow-sm lg:mx-0">
+                        {step.n}
+                      </div>
+                      <p className="mt-2.5 font-display text-base font-bold text-board sm:text-lg">
+                        {step.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted sm:text-sm">{step.blurb}</p>
+                    </li>
+                  ))}
+                </ol>
               </div>
 
               {/* Right — action */}
@@ -342,7 +466,7 @@ export default function App() {
         {phase === 'done' && result && (
           <div className="py-10 animate-fade-up">
             {/* Title + actions */}
-            <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
+            <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5 no-print">
               <div className="min-w-0">
                 <h2 className="font-display text-3xl leading-tight font-bold text-board sm:text-4xl">
                   {result.study_pack.title}
@@ -351,8 +475,6 @@ export default function App() {
                   {result.study_pack.subject && <span>{result.study_pack.subject}</span>}
                   {result.study_pack.subject && <span className="text-board/20">·</span>}
                   <span>{result.study_pack.detected_languages.join(', ')}</span>
-                  <span className="text-board/20">·</span>
-                  <span className="font-mono text-xs">{result.model}</span>
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 no-print">
@@ -369,20 +491,8 @@ export default function App() {
                   Step-by-step
                 </button>
                 <button
-                  onClick={copyNotes}
-                  className="rounded-full border border-board/15 bg-white px-4 py-2 text-sm font-semibold text-board transition-colors hover:bg-mist"
-                >
-                  {copiedNotes ? 'Copied' : 'Copy'}
-                </button>
-                <button
-                  onClick={downloadMarkdown}
-                  className="rounded-full bg-accent-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
-                >
-                  Download
-                </button>
-                <button
                   onClick={printNotes}
-                  className="rounded-full border border-board/15 bg-white px-4 py-2 text-sm font-semibold text-board transition-colors hover:bg-mist"
+                  className="rounded-full bg-accent-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
                 >
                   Print / PDF
                 </button>
@@ -496,16 +606,7 @@ export default function App() {
                             <p className="text-sm text-muted">Gemma is explaining in simple Bangla…</p>
                           )}
                           {explainError && <p className="text-sm text-red-600">{explainError}</p>}
-                          {banglaExplain && (
-                            <div className="prose-notes">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm, remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                              >
-                                {banglaExplain}
-                              </ReactMarkdown>
-                            </div>
-                          )}
+                          {banglaExplain && <MathMarkdown>{banglaExplain}</MathMarkdown>}
                         </div>
                       )}
 
@@ -526,30 +627,29 @@ export default function App() {
                             <p className="text-sm text-muted">Gemma is walking through the board…</p>
                           )}
                           {stepError && <p className="text-sm text-red-600">{stepError}</p>}
-                          {stepLogic && (
-                            <div className="prose-notes">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm, remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                              >
-                                {stepLogic}
-                              </ReactMarkdown>
-                            </div>
-                          )}
+                          {stepLogic && <MathMarkdown>{stepLogic}</MathMarkdown>}
                         </div>
                       )}
 
-                      <div className="prose-notes rounded-2xl border border-board/10 bg-white px-7 py-6 shadow-sm sm:px-9 sm:py-8">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm, remarkMath]}
-                          rehypePlugins={[rehypeKatex]}
-                        >
+                      <div id="print-sheet">
+                        <MathMarkdown className="prose-notes rounded-2xl border border-board/10 bg-white px-7 py-6 shadow-sm sm:px-9 sm:py-8">
                           {result.study_pack.notes_markdown}
-                        </ReactMarkdown>
+                        </MathMarkdown>
+
+                        {(result.study_pack.related_topics?.length ?? 0) > 0 && (
+                          <div className="print-related">
+                            <h2>Related topics</h2>
+                            <ul>
+                              {result.study_pack.related_topics.map((topic) => (
+                                <li key={topic}>{topic}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
 
                       {(result.study_pack.related_topics?.length ?? 0) > 0 && (
-                        <div className="rounded-2xl border border-board/10 bg-white px-6 py-5">
+                        <div className="mt-5 rounded-2xl border border-board/10 bg-white px-6 py-5 no-print">
                           <p className="text-sm font-bold tracking-wide text-board uppercase">
                             Related topics to study next
                           </p>

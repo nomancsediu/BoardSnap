@@ -140,12 +140,22 @@ def more_flashcards(body: MoreFlashcardsRequest) -> MoreFlashcardsResponse:
 
 
 # Serve the built frontend if present (production / Docker).
+# Registered last so /api/* routes always win.
 _dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 if _dist.is_dir():
-    app.mount("/assets", StaticFiles(directory=_dist / "assets"), name="assets")
+    _assets = _dist / "assets"
+    if _assets.is_dir():
+        app.mount("/assets", StaticFiles(directory=_assets), name="assets")
+
+    @app.get("/")
+    def index() -> FileResponse:
+        return FileResponse(_dist / "index.html")
 
     @app.get("/{full_path:path}")
     def spa(full_path: str) -> FileResponse:
+        # Never let the SPA catch API paths if routing order changes.
+        if full_path.startswith("api/"):
+            raise HTTPException(404, "Not found")
         candidate = _dist / full_path
         if full_path and candidate.is_file():
             return FileResponse(candidate)
