@@ -221,124 +221,12 @@ export default function App() {
   const printNotes = () => {
     if (!result) return
     setTab('notes')
-
-    // Print from a blank window so PDF has no "BoardSnap" title or localhost URL.
+    // Print dialog from this page (no new tab / blank window).
     requestAnimationFrame(() => {
-      const sheet = document.getElementById('print-sheet')
-      if (!sheet) {
-        window.print()
-        return
-      }
-
-      const title = result.study_pack.title
-      const safeTitle = title
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-
-      const styles = Array.from(
-        document.querySelectorAll('link[rel="stylesheet"], style'),
-      )
-        .map((el) => el.outerHTML)
-        .join('\n')
-
-      const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>${safeTitle}</title>
-${styles}
-<style>
-  @page { margin: 16mm 14mm; size: auto; }
-  html, body {
-    background: #fff !important;
-    color: #15261f !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .print-doc { max-width: 720px; margin: 0 auto; }
-  .print-doc h1 {
-    font-family: Fraunces, Georgia, serif;
-    font-size: 22pt;
-    font-weight: 700;
-    line-height: 1.25;
-    margin: 0 0 18px;
-    color: #0c2920;
-  }
-  .print-doc .prose-notes {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-    border-radius: 0 !important;
-  }
-  .print-doc .katex-display {
-    background: transparent !important;
-    border: none !important;
-    padding: 0.4rem 0 !important;
-  }
-  .print-related {
-    margin-top: 22px;
-    padding-top: 14px;
-    border-top: 1px solid #d9ede2;
-  }
-  .print-related h2 {
-    font-family: Fraunces, Georgia, serif;
-    font-size: 13pt;
-    margin: 0 0 8px;
-    color: #0c2920;
-  }
-  .print-related ul {
-    margin: 0;
-    padding-left: 1.2rem;
-    line-height: 1.6;
-  }
-  /* Hide screen-only chrome copied into the sheet */
-  .no-print { display: none !important; }
-  #print-sheet .print-related { display: block !important; }
-</style>
-</head>
-<body>
-  <div class="print-doc">
-    <h1>${safeTitle}</h1>
-    ${sheet.innerHTML}
-  </div>
-</body>
-</html>`
-
-      const w = window.open('', '_blank', 'noopener,noreferrer')
-      if (!w) {
-        // Popup blocked — fall back to on-page print.
-        const prev = document.title
-        document.title = title
-        window.print()
-        document.title = prev
-        return
-      }
-
-      w.document.open()
-      w.document.write(html)
-      w.document.close()
-
-      const run = () => {
-        try {
-          w.focus()
-          w.print()
-        } finally {
-          // Close after print dialog interaction when possible.
-          setTimeout(() => {
-            try {
-              w.close()
-            } catch {
-              /* ignore */
-            }
-          }, 400)
-        }
-      }
-
-      if (w.document.readyState === 'complete') setTimeout(run, 300)
-      else w.addEventListener('load', () => setTimeout(run, 300))
+      const prev = document.title
+      document.title = result.study_pack.title
+      window.print()
+      document.title = prev
     })
   }
 

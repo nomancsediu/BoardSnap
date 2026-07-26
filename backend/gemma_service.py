@@ -157,25 +157,64 @@ def _repair_tree(node):
     return node
 
 
+def _loads_first_json(blob: str):
+    """Parse the first JSON value; ignore trailing junk Gemma sometimes appends."""
+    decoder = json.JSONDecoder()
+    obj, _end = decoder.raw_decode(blob)
+    return obj
+
+
 def _extract_json(text: str) -> dict:
-    """Parse model output into a dict, tolerating fences and bad escapes."""
-    text = text.strip()
+    """Parse model output into a dict, tolerating fences, bad escapes, and trailing junk."""
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("Model response contained no JSON object")
+
     fence = re.search(r"```(?:json)?\s*(.*?)```", text, re.DOTALL)
     if fence:
         text = fence.group(1).strip()
-    start, end = text.find("{"), text.rfind("}")
-    if start == -1 or end == -1:
+
+    # Prefer object; fall back to array (e.g. bare quiz list).
+    start_obj, start_arr = text.find("{"), text.find("[")
+    if start_obj == -1 and start_arr == -1:
+        logger.warning("No JSON brace in model output preview: %s", text[:400].replace("\n", "\\n"))
         raise ValueError("Model response contained no JSON object")
-    blob = text[start : end + 1]
+
+    if start_obj == -1:
+        start = start_arr
+    elif start_arr == -1:
+        start = start_obj
+    else:
+        start = min(start_obj, start_arr)
+
+    blob = text[start:]
     try:
-        return _repair_tree(json.loads(blob))
+        data = _loads_first_json(blob)
     except json.JSONDecodeError as first_err:
         repaired = _fix_invalid_escapes(blob)
         try:
-            return _repair_tree(json.loads(repaired))
+            data = _loads_first_json(repaired)
         except json.JSONDecodeError:
-            logger.warning("JSON parse failed even after escape repair: %s", first_err)
+            logger.warning(
+                "JSON parse failed even after escape repair: %s | preview=%s",
+                first_err,
+                blob[:400].replace("\n", "\\n"),
+            )
             raise ValueError(f"Invalid JSON from model: {first_err}") from first_err
+
+    if isinstance(data, list):
+        # Model sometimes returns a bare quiz/flashcard array.
+        if data and isinstance(data[0], dict) and "question" in data[0] and "options" in data[0]:
+            data = {"quiz": data}
+        elif data and isinstance(data[0], dict) and "question" in data[0] and "answer" in data[0]:
+            data = {"flashcards": data}
+        else:
+            raise ValueError("Model returned a JSON array, expected an object")
+
+    if not isinstance(data, dict):
+        raise ValueError(f"Model JSON must be an object, got {type(data).__name__}")
+
+    return _repair_tree(data)
 
 
 def generate_study_pack(image_bytes: bytes, mime_type: str, output_language: str) -> StudyPack:
@@ -337,11 +376,15 @@ Notes:
 {notes_markdown[:12000]}
 \"\"\"
 
-Respond ONLY with JSON:
+Respond with EXACTLY one JSON object and nothing else (no markdown, no second object, no prose):
 {{"quiz":[{{"question":"string","options":["a","b","c","d"],"correct_index":0,"explanation":"string"}}]}}
+Inside strings, escape every double-quote as \\" and every backslash as \\\\.
 """
     data = _text_client_call(prompt, temperature=0.4)
-    return [QuizQuestion.model_validate(q) for q in data.get("quiz", [])]
+    quiz = data.get("quiz") or data.get("questions") or []
+    if not isinstance(quiz, list):
+        raise ValueError("Model did not return a quiz array")
+    return [QuizQuestion.model_validate(q) for q in quiz]
 
 
 def explain_step_by_step(

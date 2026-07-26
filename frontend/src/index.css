@@ -234,7 +234,7 @@ body {
   display: none;
 }
 
-/* Print / Save as PDF — clean notes only (fallback if popup blocked) */
+/* Print / Save as PDF — clean notes only, same page */
 @media print {
   @page {
     margin: 16mm 14mm;
@@ -250,12 +250,19 @@ body {
     padding-left: 0 !important;
     padding-right: 0 !important;
   }
+  #print-sheet .print-related {
+    display: block !important;
+    margin-top: 22px;
+    padding-top: 14px;
+    border-top: 1px solid #d9ede2;
+  }
   .print-notes .prose-notes,
   #print-sheet .prose-notes {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     background: transparent !important;
+    border-radius: 0 !important;
   }
   .print-notes .katex-display,
   #print-sheet .katex-display {
