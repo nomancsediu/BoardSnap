@@ -2,26 +2,28 @@ import { useMemo } from 'react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 
-type Part = { type: 'text'; value: string } | { type: 'math'; value: string; display: boolean }
+export type MathPart =
+  | { type: 'text'; value: string }
+  | { type: 'math'; value: string; display: boolean }
 
-/** Soften wrappers / double-escaped commands (same idea as Excali Pro). */
+/** Soften wrappers / double-escaped commands. */
 export function normalizeLatex(raw: string) {
   let t = raw.trim()
   t = t.replace(/^\$\$([\s\S]*)\$\$$/m, '$1')
   t = t.replace(/^\$([^$]*)\$$/m, '$1')
   t = t.replace(/^\\\(([\s\S]*)\\\)$/m, '$1')
   t = t.replace(/^\\\[([\s\S]*)\\\]$/m, '$1')
-  // Collapse accidental double-backslashes before LaTeX commands: \\frac → \frac
+  t = t.replace(/^\\\(|\\\)$/g, '')
+  t = t.replace(/^\\\[|\\\]$/g, '')
   t = t.replace(/\\\\([a-zA-Z]+)/g, '\\$1')
   return t.trim()
 }
 
-function splitMath(input: string): Part[] {
+export function splitMath(input: string): MathPart[] {
   const text = input ?? ''
   if (!text) return [{ type: 'text', value: '' }]
 
-  const parts: Part[] = []
-  // $$...$$ first, then $...$, then \(...\), \[...\]
+  const parts: MathPart[] = []
   const re =
     /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$|\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]/g
   let last = 0
@@ -57,12 +59,12 @@ function renderKatex(latex: string, display: boolean) {
 interface Props {
   children: string
   className?: string
+  /** kept for API compat with flashcard call sites — unused for DOM KaTeX */
+  color?: string
+  fontSize?: number
 }
 
-/**
- * Inline text + KaTeX, Excali Pro style (direct katex.renderToString).
- * Use for quiz / flashcards where remark-math often leaves raw `$...$`.
- */
+/** Inline text + KaTeX HTML (quiz / flashcards). */
 export default function MathText({ children, className = '' }: Props) {
   const parts = useMemo(() => splitMath(children), [children])
 

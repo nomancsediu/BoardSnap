@@ -8,6 +8,7 @@ import { normalizeLatex } from './MathText'
 interface Props {
   children: string
   className?: string
+  color?: string
 }
 
 /** Fix \\frac → \frac inside math spans so KaTeX can parse. */
@@ -18,7 +19,7 @@ function prepareMarkdown(md: string) {
   })
 }
 
-/** Shared markdown renderer with KaTeX — notes / Bangla / step-by-step. */
+/** Notes / Bangla / step-by-step — markdown + live KaTeX. */
 export default function MathMarkdown({ children, className = 'prose-notes' }: Props) {
   return (
     <div className={className}>

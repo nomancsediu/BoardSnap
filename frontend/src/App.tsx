@@ -363,7 +363,7 @@ ${styles}
       <main className="shell flex-1 pb-16">
         {phase === 'idle' && (
           <div className="animate-fade-up">
-            <section className="grid items-center gap-8 py-8 sm:gap-10 sm:py-10 lg:grid-cols-2 lg:gap-12 lg:py-14">
+            <section className="grid items-center gap-8 py-12 sm:gap-10 sm:py-16 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-2 lg:gap-12 lg:py-20">
               {/* Left — message */}
               <div className="w-full pr-0 text-center lg:pr-6 lg:text-left">
                 <p className="text-xs font-bold tracking-[0.2em] text-accent-dark uppercase">

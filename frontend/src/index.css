@@ -92,10 +92,46 @@ body {
 /* KaTeX math.
    KaTeX positions its own SVGs (sqrt, stretchy delimiters) with
    display:block + position:absolute, so never override those. */
+
+/* Tailwind preflight applies `border: 0 solid` to every element, which erases
+   the rules KaTeX draws with borders: fraction bars, overlines, \hline. */
+.katex .frac-line,
+.katex .overline-line,
+.katex .underline-line,
+.katex .hline,
+.katex .hdashline,
+.katex .rule {
+  border-bottom-color: currentColor !important;
+  border-bottom-style: solid !important;
+}
+.katex .frac-line {
+  border-bottom-width: 0.06em !important;
+}
+.katex .overline-line,
+.katex .underline-line,
+.katex .hline {
+  border-bottom-width: 0.05em !important;
+}
+
 .prose-notes .katex {
   font-size: 1.08em;
   line-height: 1.2;
   text-indent: 0;
+}
+/* inline-block makes the line box grow to fit tall math (fractions, roots)
+   instead of letting it overlap the lines above and below. */
+.prose-notes p .katex,
+.prose-notes li .katex,
+.prose-notes td .katex,
+.math-text .katex {
+  display: inline-block;
+}
+.prose-notes p,
+.prose-notes li {
+  line-height: 1.95;
+}
+.prose-notes li {
+  margin: 0.4rem 0;
 }
 .prose-notes .katex-display {
   margin: 1.1rem 0;
@@ -107,7 +143,9 @@ body {
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
-.prose-notes .katex-display > .katex {
+.prose-notes .katex-display > .katex,
+.math-text .katex-display > .katex {
+  display: block;
   white-space: nowrap;
 }
 
@@ -140,7 +178,6 @@ body {
   color: inherit;
 }
 
-/* Excali-style direct KaTeX (quiz / flashcards) */
 .math-text {
   line-height: 1.55;
 }
@@ -152,11 +189,8 @@ body {
   margin: 0.55rem 0;
   overflow-x: auto;
 }
-.math-text .katex {
-  font-size: 1.08em;
-}
 .math-text .katex-display {
-  margin: 0.4rem 0;
+  margin: 0.5rem 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
