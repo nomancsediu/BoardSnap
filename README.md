@@ -1,68 +1,68 @@
 <div align="center">
 
-# 📸 BoardSnap — Whiteboard to Interactive Study Guide
+# BoardSnap — Whiteboard to Interactive Study Guide
 
 **Snap one photo of a messy Bangla + English whiteboard. Get clean notes, code, flashcards and a quiz — in ~20 seconds.**
 
 *Build With Gemma @Bangladesh · Multimodal Track (Gemma 4 Vision)*
 
-[![Model](https://img.shields.io/badge/Gemma%204-gemma--4--26b--a4b--it-7c3aed)](#-how-gemma-is-used)
-[![Backend](https://img.shields.io/badge/FastAPI-Python%203.13-009688)](#-technical-architecture)
-[![Frontend](https://img.shields.io/badge/React%2019-Vite%20%2B%20Tailwind-61dafb)](#-technical-architecture)
-[![Deploy](https://img.shields.io/badge/Deploy-Docker%20%2F%20Render-46e3b7)](#-run-it-yourself)
+[![Model](https://img.shields.io/badge/Gemma%204-gemma--4--26b--a4b--it-7c3aed)](#how-gemma-is-used)
+[![Backend](https://img.shields.io/badge/FastAPI-Python%203.13-009688)](#technical-architecture)
+[![Frontend](https://img.shields.io/badge/React%2019-Vite%20%2B%20Tailwind-61dafb)](#technical-architecture)
+[![Deploy](https://img.shields.io/badge/Deploy-Docker%20%2F%20Render-46e3b7)](#run-it-yourself)
 
 </div>
 
 ---
 
-> 🎬 **Demo video:** _link coming soon_ &nbsp;·&nbsp; 🌐 **Live app:** _link coming soon_ &nbsp;·&nbsp; 🖼 **Sample board:** [`samples/test-board.png`](samples/test-board.png)
+> **Demo video:** _link coming soon_ &nbsp;·&nbsp; **Live app:** _link coming soon_ &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
 
-## 📚 Table of Contents
+## Table of Contents
 
-1. [Problem Statement](#-problem-statement)
-2. [Solution Overview](#-solution-overview)
-3. [How Gemma Is Used](#-how-gemma-is-used)
-4. [Technical Architecture](#-technical-architecture)
-5. [User Flow](#-user-flow)
-6. [Impact & Validation](#-impact--validation)
-7. [Run It Yourself](#-run-it-yourself)
-8. [API Reference](#-api-reference)
-9. [Limitations & Future Work](#-limitations--future-work)
+1. [Problem Statement](#problem-statement)
+2. [Solution Overview](#solution-overview)
+3. [How Gemma Is Used](#how-gemma-is-used)
+4. [Technical Architecture](#technical-architecture)
+5. [User Flow](#user-flow)
+6. [Impact & Validation](#impact--validation)
+7. [Run It Yourself](#run-it-yourself)
+8. [API Reference](#api-reference)
+9. [Limitations & Future Work](#limitations--future-work)
 
 ---
 
-## 🇧🇩 Problem Statement
+## Problem Statement
 
 In Bangladesh, classrooms — from HSC coaching centers in Dhaka to university lecture halls in Sylhet — run on **whiteboards filled with a mix of Bangla and English**: flowcharts, pseudocode, math derivations, and fast, messy handwriting.
 
 What students actually do today:
 
-- 📱 They **photograph the board** before it gets erased — almost every student's gallery is full of board photos.
-- 😓 Those photos are **nearly useless for revision**: low contrast, sideways angles, mixed languages, half-erased diagrams.
-- ⌨️ Re-typing notes by hand takes **30–60 minutes per lecture**, and most students simply never do it.
-- 💸 Commercial note/OCR apps handle English print text, but **fail on handwritten Bangla** and mixed-script boards — and none of them turn a board into *study material*.
+- They **photograph the board** before it gets erased — almost every student's gallery is full of board photos.
+- Those photos are **nearly useless for revision**: low contrast, sideways angles, mixed languages, half-erased diagrams.
+- Re-typing notes by hand takes **30–60 minutes per lecture**, and most students simply never do it.
+- Commercial note/OCR apps handle English print text, but **fail on handwritten Bangla** and mixed-script boards — and none of them turn a board into *study material*.
 
 The result: the single most common study artifact in Bangladesh — the board photo — is a dead end. **BoardSnap turns it into the starting point.**
 
-## 💡 Solution Overview
+## Solution Overview
 
 BoardSnap is a web application (works in any phone browser, no install) that converts **one whiteboard photo** into a complete, interactive study pack:
 
 | Output | What you get |
 |---|---|
-| 📝 **Clean Notes** | Structured Markdown reconstruction of the board — flowcharts become ordered logic, math becomes rendered LaTeX |
-| 💻 **Code** | Every code/pseudocode fragment extracted, cleaned up, and explained |
-| 🃏 **Flashcards** | 6–10 flip cards testing the *actual* board content — with "more cards" on demand |
-| ❓ **Quiz** | Multiple-choice questions with instant scoring — with harder questions on demand |
-| ⚠️ **Honest OCR** | Illegible parts go to a **warnings panel** instead of being silently invented |
-| 🎓 **Smart Tutor** | One-tap "Easy Bangla" explanation and step-by-step logic walkthrough |
-| 🖨️ **Print / PDF** | Clean printable study notes for offline revision |
+| **Clean Notes** | Structured Markdown reconstruction of the board — flowcharts become ordered logic, math becomes rendered LaTeX |
+| **Code** | Every code/pseudocode fragment extracted, cleaned up, and explained |
+| **Flashcards** | 6–10 flip cards testing the *actual* board content — with "more cards" on demand |
+| **Quiz** | Multiple-choice questions with instant scoring — with harder questions on demand |
+| **Honest OCR** | Illegible parts go to a **warnings panel** instead of being silently invented |
+| **Smart Tutor** | One-tap "Easy Bangla" explanation and step-by-step logic walkthrough |
+| **Print / PDF** | Clean printable study notes for offline revision |
 
 Output language is the student's choice: **বাংলা / English / Bilingual**.
 
 This is **not a chatbot**. There is no free-form chat loop — the core value is an automated *vision → structured data → interactive workspace* pipeline that replaces 30–60 minutes of manual transcription with one upload.
 
-## 🤖 How Gemma Is Used
+## How Gemma Is Used
 
 Gemma is the **core engine** of BoardSnap — every feature is powered by it.
 
@@ -80,17 +80,17 @@ Gemma is the **core engine** of BoardSnap — every feature is powered by it.
 
 Four additional Gemma-powered endpoints (Easy-Bangla explainer, step-by-step tutor, more-quiz, more-flashcards) reuse the validated notes as grounded context, so every generated question stays faithful to what was actually on the board.
 
-## 🏗 Technical Architecture
+## Technical Architecture
 
 ![BoardSnap technical architecture](docs/architecture.png)
 
 **Stack summary:** React 19 + Vite + Tailwind (frontend) · FastAPI, Python 3.13 (backend) · Gemma 4 via Gemini API (intelligence) · Pydantic (validation) · Docker multi-stage build → single image, deployed on Render's free tier (`render.yaml` included).
 
-## 🚶 User Flow
+## User Flow
 
 ![BoardSnap user flow](docs/user-flow.png)
 
-## 📊 Impact & Validation
+## Impact & Validation
 
 - **Time saved:** one upload (~20 s end-to-end) replaces 30–60 minutes of manual note transcription per lecture.
 - **Tested on real board content:** a sample messy bilingual CS board (control flow + pseudocode + math, [`samples/test-board.png`](samples/test-board.png)) is included in the repo — the app correctly reconstructs the flowchart as ordered logic, extracts runnable code, and renders the math in LaTeX.
@@ -98,7 +98,7 @@ Four additional Gemma-powered endpoints (Easy-Bangla explainer, step-by-step tut
 - **Accessibility:** output in সহজ বাংলা makes English-medium technical boards usable for Bangla-medium students — the "Easy Bangla" tutor was designed specifically for rural HSC students facing English jargon.
 - **Reach:** works in any phone browser over a normal mobile connection; the heavy lifting happens server-side, so a ৳10,000 phone works as well as a flagship.
 
-## 🚀 Run It Yourself
+## Run It Yourself
 
 ### Prerequisite
 
@@ -143,7 +143,7 @@ cd frontend && npm run dev                              # terminal 2 → http://
 
 Try it immediately with the bundled sample board: [`samples/test-board.png`](samples/test-board.png).
 
-## 🔌 API Reference
+## API Reference
 
 | Endpoint | Method | Purpose |
 |---|---|---|
@@ -154,7 +154,7 @@ Try it immediately with the bundled sample board: [`samples/test-board.png`](sam
 | `/api/more-quiz` | POST | More MCQs by difficulty (`easy` \| `mixed` \| `hard`) |
 | `/api/more-flashcards` | POST | More flashcards by difficulty |
 
-## 🔭 Limitations & Future Work
+## Limitations & Future Work
 
 **Current limitations**
 
@@ -173,6 +173,6 @@ Try it immediately with the bundled sample board: [`samples/test-board.png`](sam
 
 <div align="center">
 
-Built with ❤️ for Bangladeshi students · **Build With Gemma @Bangladesh 2026**
+Built for Bangladeshi students · **Build With Gemma @Bangladesh 2026**
 
 </div>
