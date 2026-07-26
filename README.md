@@ -6,7 +6,6 @@
 
 [![Live App](https://img.shields.io/badge/Live_App-Open_BoardSnap-0f8f5a?style=for-the-badge)](https://boardsnap.onrender.com/)
 [![Demo Video](https://img.shields.io/badge/Demo_Video-Watch_on_YouTube-cc0000?style=for-the-badge)](https://youtu.be/KmzvXxoKW8k)
-[![Kaggle Writeup](https://img.shields.io/badge/Kaggle_Writeup-View_Submission-20beff?style=for-the-badge)](https://www.kaggle.com/competitions/build-with-gemma-ml-ai-deep-learning-nlp-communityofficial/writeups/new-writeup-1784569316070)
 [![Sample Board](https://img.shields.io/badge/Sample_Board-Try_the_Image-5a7267?style=for-the-badge)](samples/test-board.png)
 
 *Build With Gemma @Bangladesh · Multimodal Track (Gemma 4 Vision)*
