@@ -13,8 +13,6 @@
 
 </div>
 
----
-
 > **Demo video:** _link coming soon_ &nbsp;·&nbsp; **Live app:** _link coming soon_ &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
 
 ## Problem Statement
@@ -154,8 +152,6 @@ Try it immediately with the bundled sample board: [`samples/test-board.png`](sam
 - **Offline, on-device mode** with a small Gemma variant for load-shedding resilience.
 - **Spaced-repetition export** (Anki deck download) and multi-photo lecture stitching.
 - **Teacher dashboard** — aggregate quiz results across a class to spot weak topics.
-
----
 
 <div align="center">
 
