@@ -11,9 +11,11 @@
 [![Frontend](https://img.shields.io/badge/React%2019-Vite%20%2B%20Tailwind-61dafb)](#technical-architecture)
 [![Deploy](https://img.shields.io/badge/Deploy-Docker%20%2F%20Render-46e3b7)](#run-it-yourself)
 
+![BoardSnap thumbnail](docs/thumbnail.png)
+
 </div>
 
-> **Live app:** [boardsnap.onrender.com](https://boardsnap.onrender.com/) &nbsp;·&nbsp; **Demo video:** [YouTube](https://youtu.be/KmzvXxoKW8k) &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
+> **Live app:** [boardsnap.onrender.com](https://boardsnap.onrender.com/) &nbsp;·&nbsp; **Demo video:** [YouTube](https://youtu.be/KmzvXxoKW8k) &nbsp;·&nbsp; **Kaggle writeup:** [Build With Gemma](https://www.kaggle.com/competitions/build-with-gemma-ml-ai-deep-learning-nlp-communityofficial/writeups/new-writeup-1784569316070) &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
 
 ## Problem Statement
 
@@ -73,6 +75,41 @@ Four additional Gemma-powered endpoints (Easy-Bangla explainer, step-by-step tut
 ## User Flow
 
 ![BoardSnap user flow](docs/user-flow.png)
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <p><b>Home</b></p>
+      <img src="docs/screenshot-home.png" alt="Home" />
+    </td>
+    <td width="50%" align="center" valign="top">
+      <p><b>Digitize in Progress</b></p>
+      <img src="docs/screenshot-processing.png" alt="Digitize in progress" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <p><b>Notes</b></p>
+      <img src="docs/screenshot-notes.png" alt="Notes" />
+    </td>
+    <td width="50%" align="center" valign="top">
+      <p><b>Code</b></p>
+      <img src="docs/screenshot-code.png" alt="Code" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <p><b>Flashcards</b></p>
+      <img src="docs/screenshot-flashcards.png" alt="Flashcards" />
+    </td>
+    <td width="50%" align="center" valign="top">
+      <p><b>Quiz</b></p>
+      <img src="docs/screenshot-quiz.png" alt="Quiz" />
+    </td>
+  </tr>
+</table>
 
 ## Impact & Validation
 
