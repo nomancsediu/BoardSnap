@@ -17,20 +17,6 @@
 
 > **Demo video:** _link coming soon_ &nbsp;·&nbsp; **Live app:** _link coming soon_ &nbsp;·&nbsp; **Sample board:** [`samples/test-board.png`](samples/test-board.png)
 
-## Table of Contents
-
-1. [Problem Statement](#problem-statement)
-2. [Solution Overview](#solution-overview)
-3. [How Gemma Is Used](#how-gemma-is-used)
-4. [Technical Architecture](#technical-architecture)
-5. [User Flow](#user-flow)
-6. [Impact & Validation](#impact--validation)
-7. [Run It Yourself](#run-it-yourself)
-8. [API Reference](#api-reference)
-9. [Limitations & Future Work](#limitations--future-work)
-
----
-
 ## Problem Statement
 
 In Bangladesh, classrooms — from HSC coaching centers in Dhaka to university lecture halls in Sylhet — run on **whiteboards filled with a mix of Bangla and English**: flowcharts, pseudocode, math derivations, and fast, messy handwriting.
