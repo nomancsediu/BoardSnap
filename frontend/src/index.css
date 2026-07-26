@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-board: #0c2920;
+  --color-board-light: #143d30;
+  --color-chalk: #f7f4ec;
+  --color-accent: #3dd68c;
+  --color-accent-dark: #0f8f5a;
+  --color-mist: #eef6f1;
+  --color-ink: #15261f;
+  --color-muted: #5a7267;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background:
+    radial-gradient(ellipse 90% 55% at 10% -10%, #d8f3e4 0%, transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 0%, #e7f0ea 0%, transparent 50%),
+    linear-gradient(180deg, #f4faf6 0%, #eef5f0 40%, #f7faf8 100%);
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.shell {
+  padding-left: 120px;
+  padding-right: 120px;
+}
+
+@media (max-width: 1024px) {
+  .shell {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .shell {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+/* Flashcard 3D flip */
+.flip-card {
+  perspective: 1200px;
+}
+.flip-card-inner {
+  transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+/* Markdown content styling */
+.prose-notes h1 { font-family: var(--font-display); font-size: 1.65rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #0c2920; }
+.prose-notes h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; margin: 1.35rem 0 0.5rem; color: #0c2920; border-bottom: 1px solid #cfe8da; padding-bottom: 0.35rem; }
+.prose-notes h3 { font-size: 1.05rem; font-weight: 700; margin: 1rem 0 0.4rem; color: #14532d; }
+.prose-notes p { margin: 0.55rem 0; line-height: 1.75; color: #243830; }
+.prose-notes ul, .prose-notes ol { margin: 0.5rem 0 0.5rem 1.4rem; line-height: 1.75; }
+.prose-notes ul { list-style: disc; }
+.prose-notes ol { list-style: decimal; }
+.prose-notes li { margin: 0.25rem 0; }
+.prose-notes code { background: #e8f6ee; color: #0b5c3b; padding: 0.12rem 0.4rem; border-radius: 0.35rem; font-family: var(--font-mono); font-size: 0.85em; }
+.prose-notes pre { background: #0c2920; color: #d7f5e6; padding: 1.1rem 1.2rem; border-radius: 1rem; overflow-x: auto; margin: 0.85rem 0; }
+.prose-notes pre code { background: transparent; color: inherit; padding: 0; }
+.prose-notes table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+.prose-notes th, .prose-notes td { border: 1px solid #b7dfc8; padding: 0.45rem 0.8rem; text-align: left; }
+.prose-notes th { background: #e8f6ee; font-weight: 600; }
+.prose-notes blockquote { border-left: 3px solid #3dd68c; padding-left: 1rem; color: #3d554a; margin: 0.85rem 0; }
+
+/* KaTeX math */
+.prose-notes .katex {
+  font-size: 1.04em;
+}
+.prose-notes .katex-display {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  background: #f3faf6;
+  border: 1px solid #d9ede2;
+  border-radius: 0.85rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeUp 0.55s ease both;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 1.6s ease-in-out infinite;
+}
+
+/* Print / Save as PDF — clean notes only */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .shell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .print-notes .prose-notes {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  .print-notes .katex-display {
+    background: transparent !important;
+    border: none !important;
+  }
+}
