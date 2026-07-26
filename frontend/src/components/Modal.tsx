@@ -21,11 +21,11 @@ export default function Modal({ title, onClose, children }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-board/50 p-4 backdrop-blur-sm animate-fade-up"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-board/50 p-3 backdrop-blur-sm animate-fade-up sm:p-4"
       onClick={onClose}
     >
       <div
-        className="max-h-[88vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:max-h-[88vh] sm:rounded-3xl sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between gap-4">

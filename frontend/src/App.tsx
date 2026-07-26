@@ -233,17 +233,17 @@ export default function App() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-20 border-b border-black/5 bg-white/70 backdrop-blur-xl no-print">
-        <div className="shell flex items-center justify-between py-4">
-          <button onClick={reset} className="group text-left">
-            <p className="font-display text-2xl font-bold tracking-tight text-board">
+        <div className="shell flex items-center justify-between gap-3 py-3 sm:py-4">
+          <button onClick={reset} className="group min-w-0 text-left">
+            <p className="font-display text-xl font-bold tracking-tight text-board sm:text-2xl">
               Board<span className="text-accent-dark">Snap</span>
             </p>
-            <p className="text-[11px] font-medium tracking-[0.14em] text-muted uppercase">
+            <p className="truncate text-[10px] font-medium tracking-[0.14em] text-muted uppercase sm:text-[11px]">
               Whiteboard to study guide
             </p>
           </button>
-          <p className="rounded-full bg-board px-4 py-1.5 text-xs font-semibold tracking-wide text-chalk">
-            Powered by Gemma 4
+          <p className="shrink-0 rounded-full bg-board px-3 py-1.5 text-[11px] font-semibold tracking-wide text-chalk sm:px-4 sm:text-xs">
+            <span className="hidden sm:inline">Powered by </span>Gemma 4
           </p>
         </div>
       </header>
@@ -251,18 +251,18 @@ export default function App() {
       <main className="shell flex-1 pb-16">
         {phase === 'idle' && (
           <div className="animate-fade-up">
-            <section className="grid items-center gap-8 py-12 sm:gap-10 sm:py-16 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-2 lg:gap-12 lg:py-20">
+            <section className="grid items-center gap-8 py-8 sm:gap-10 sm:py-16 lg:min-h-[calc(100vh-9rem)] lg:grid-cols-2 lg:gap-12 lg:py-20">
               {/* Left — message */}
               <div className="w-full pr-0 text-center lg:pr-6 lg:text-left">
                 <p className="text-xs font-bold tracking-[0.2em] text-accent-dark uppercase">
                   For Bangladesh classrooms
                 </p>
-                <h1 className="mt-4 font-display text-4xl leading-[1.05] font-bold tracking-tight text-board sm:text-5xl xl:text-[4rem]">
+                <h1 className="mt-4 font-display text-[2rem] leading-[1.08] font-bold tracking-tight text-board sm:text-5xl sm:leading-[1.05] xl:text-[4rem]">
                   Messy whiteboard in.
                   <br />
                   <span className="text-accent-dark">Interactive study pack out.</span>
                 </h1>
-                <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-muted sm:text-xl lg:mx-0">
+                <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted sm:mt-5 sm:text-xl lg:mx-0">
                   Snap your class board. BoardSnap turns messy Bangla and English notes into a
                   clean study pack with notes, code, flashcards, and a quiz.
                 </p>
@@ -356,7 +356,7 @@ export default function App() {
             {/* Title + actions */}
             <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5 no-print">
               <div className="min-w-0">
-                <h2 className="font-display text-3xl leading-tight font-bold text-board sm:text-4xl">
+                <h2 className="font-display text-2xl leading-tight font-bold text-board sm:text-4xl">
                   {result.study_pack.title}
                 </h2>
                 <p className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-muted">
@@ -439,7 +439,7 @@ export default function App() {
 
             <div className="mt-6">
               <section className="w-full">
-                <div className="sticky top-[76px] z-10 flex items-center gap-1 overflow-x-auto rounded-2xl border border-board/10 bg-white/95 p-1.5 shadow-sm backdrop-blur no-print">
+                <div className="tab-strip sticky top-[64px] z-10 flex items-center gap-1 overflow-x-auto rounded-2xl border border-board/10 bg-white/95 p-1.5 shadow-sm backdrop-blur sm:top-[76px] no-print">
                   {TABS.map(({ id, label }) => {
                     const count =
                       id === 'code'
@@ -453,7 +453,7 @@ export default function App() {
                       <button
                         key={id}
                         onClick={() => setTab(id)}
-                        className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
+                        className={`flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-all sm:flex-1 sm:px-4 ${
                           tab === id
                             ? 'bg-board text-chalk shadow'
                             : 'text-muted hover:bg-mist hover:text-board'
@@ -478,7 +478,7 @@ export default function App() {
                   {tab === 'notes' && (
                     <div className="space-y-5">
                       {showExplain && (
-                        <div className="rounded-2xl border border-accent-dark/20 bg-mist/60 px-7 py-6 shadow-sm sm:px-9 no-print">
+                        <div className="rounded-2xl border border-accent-dark/20 bg-mist/60 px-4 py-5 shadow-sm sm:px-9 sm:py-6 no-print">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <p className="text-sm font-bold tracking-wide text-accent-dark uppercase">
                               Easy Bangla explanation
@@ -499,7 +499,7 @@ export default function App() {
                       )}
 
                       {showStep && (
-                        <div className="rounded-2xl border border-board/15 bg-white px-7 py-6 shadow-sm sm:px-9 no-print">
+                        <div className="rounded-2xl border border-board/15 bg-white px-4 py-5 shadow-sm sm:px-9 sm:py-6 no-print">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <p className="text-sm font-bold tracking-wide text-board uppercase">
                               Step-by-step logic
@@ -520,7 +520,7 @@ export default function App() {
                       )}
 
                       <div id="print-sheet">
-                        <MathMarkdown className="prose-notes rounded-2xl border border-board/10 bg-white px-7 py-6 shadow-sm sm:px-9 sm:py-8">
+                        <MathMarkdown className="prose-notes rounded-2xl border border-board/10 bg-white px-4 py-5 shadow-sm sm:px-9 sm:py-8">
                           {result.study_pack.notes_markdown}
                         </MathMarkdown>
 
@@ -537,7 +537,7 @@ export default function App() {
                       </div>
 
                       {(result.study_pack.related_topics?.length ?? 0) > 0 && (
-                        <div className="mt-5 rounded-2xl border border-board/10 bg-white px-6 py-5 no-print">
+                        <div className="mt-5 rounded-2xl border border-board/10 bg-white px-4 py-5 sm:px-6 no-print">
                           <p className="text-sm font-bold tracking-wide text-board uppercase">
                             Related topics to study next
                           </p>
@@ -622,7 +622,7 @@ export default function App() {
             </p>
           </div>
           <p className="text-sm font-medium text-emerald-100/90">
-            Developed by <span className="font-semibold text-white">Abdullah Al Noman</span>
+            Developed by <span className="font-semibold text-white">Team Semicolons</span>
           </p>
         </div>
       </footer>

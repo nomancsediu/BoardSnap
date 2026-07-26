@@ -155,6 +155,6 @@ Try it immediately with the bundled sample board: [`samples/test-board.png`](sam
 
 <div align="center">
 
-Built for Bangladeshi students · **Build With Gemma @Bangladesh 2026**
+Developed by **Team Semicolons** · Built for Bangladeshi students · **Build With Gemma @Bangladesh 2026**
 
 </div>

@@ -18,24 +18,26 @@ export default function CodeTab({ snippets }: { snippets: CodeSnippet[] }) {
     <div className="space-y-5 py-4">
       {snippets.map((s, i) => (
         <div key={i} className="overflow-hidden rounded-3xl border border-board/10 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-board/10 bg-mist/60 px-5 py-3.5">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-board/10 bg-mist/60 px-4 py-3 sm:px-5 sm:py-3.5">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
               <span className="font-semibold text-board">{s.title}</span>
-              <span className="rounded-full bg-board px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-chalk uppercase">
+              <span className="shrink-0 rounded-full bg-board px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-chalk uppercase">
                 {s.language}
               </span>
             </div>
             <button
               onClick={() => copy(i, s.code)}
-              className="rounded-full border border-board/15 bg-white px-3.5 py-1.5 text-xs font-semibold text-board transition-colors hover:bg-white"
+              className="shrink-0 rounded-full border border-board/15 bg-white px-3.5 py-1.5 text-xs font-semibold text-board transition-colors hover:bg-white"
             >
               {copied === i ? 'Copied' : 'Copy'}
             </button>
           </div>
-          <pre className="overflow-x-auto bg-board p-5 text-sm leading-relaxed text-emerald-100">
+          <pre className="overflow-x-auto bg-board p-4 text-[13px] leading-relaxed text-emerald-100 sm:p-5 sm:text-sm">
             <code className="font-mono">{s.code}</code>
           </pre>
-          {s.explanation && <p className="px-5 py-3.5 text-sm text-muted">{s.explanation}</p>}
+          {s.explanation && (
+            <p className="px-4 py-3.5 text-sm text-muted sm:px-5">{s.explanation}</p>
+          )}
         </div>
       ))}
     </div>

@@ -50,7 +50,7 @@ export default function QuizTab({ quiz, notesMarkdown, onAppendQuiz }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-board/10 bg-white px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-board/10 bg-white px-3 py-3 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold text-board">Difficulty</span>
           {(['easy', 'mixed', 'hard'] as QuizDifficulty[]).map((d) => (
@@ -81,8 +81,8 @@ export default function QuizTab({ quiz, notesMarkdown, onAppendQuiz }: Props) {
       ) : (
         <>
           {answered === quiz.length && quiz.length > 0 && (
-            <div className="rounded-3xl bg-board px-7 py-5 text-chalk shadow-lg animate-fade-up">
-              <p className="font-display text-2xl font-bold">
+            <div className="rounded-3xl bg-board px-5 py-5 text-chalk shadow-lg animate-fade-up sm:px-7">
+              <p className="font-display text-xl font-bold sm:text-2xl">
                 Score: {correct} / {quiz.length}
               </p>
               <p className="mt-1 text-sm text-emerald-200">
@@ -98,9 +98,9 @@ export default function QuizTab({ quiz, notesMarkdown, onAppendQuiz }: Props) {
             return (
               <div
                 key={`${qi}-${q.question.slice(0, 24)}`}
-                className="rounded-3xl border border-board/10 bg-white p-6 shadow-sm"
+                className="rounded-3xl border border-board/10 bg-white p-4 shadow-sm sm:p-6"
               >
-                <div className="flex gap-2 text-base font-semibold leading-relaxed text-board">
+                <div className="flex gap-2 text-[15px] font-semibold leading-relaxed text-board sm:text-base">
                   <span className="shrink-0">{qi + 1}.</span>
                   <MathText className="min-w-0 flex-1">{q.question}</MathText>
                 </div>
@@ -119,7 +119,7 @@ export default function QuizTab({ quiz, notesMarkdown, onAppendQuiz }: Props) {
                         key={oi}
                         disabled={revealed}
                         onClick={() => setAnswers((a) => ({ ...a, [qi]: oi }))}
-                        className={`rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-all disabled:cursor-default ${style}`}
+                        className={`min-w-0 rounded-2xl border px-3.5 py-3 text-left text-sm font-medium transition-all disabled:cursor-default sm:px-4 ${style}`}
                       >
                         <MathText>{opt}</MathText>
                       </button>

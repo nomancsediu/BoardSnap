@@ -20,7 +20,7 @@ export default function UploadZone({ onFile, onSample, sampleLoading }: Props) {
   return (
     <div className="space-y-3">
       <label
-        className={`group flex min-h-[200px] flex-col items-center justify-center gap-4 rounded-2xl border px-6 py-10 cursor-pointer transition-all duration-300 sm:min-h-[250px] sm:px-8 sm:py-12 ${
+        className={`group flex min-h-[180px] flex-col items-center justify-center gap-3.5 rounded-2xl border px-4 py-8 cursor-pointer transition-all duration-300 sm:min-h-[250px] sm:gap-4 sm:px-8 sm:py-12 ${
           dragging
             ? 'border-accent bg-mist'
             : 'border-board/15 bg-mist/50 hover:border-accent-dark/50 hover:bg-mist/80'
@@ -46,8 +46,8 @@ export default function UploadZone({ onFile, onSample, sampleLoading }: Props) {
           <span className="font-display text-2xl font-bold leading-none">+</span>
         </div>
         <div className="text-center">
-          <p className="font-display text-xl font-bold text-board sm:text-2xl">Drop a whiteboard photo</p>
-          <p className="mt-2 text-sm text-muted">JPG, PNG or WebP · max 10 MB</p>
+          <p className="font-display text-lg font-bold text-board sm:text-2xl">Drop a whiteboard photo</p>
+          <p className="mt-1.5 text-xs text-muted sm:mt-2 sm:text-sm">JPG, PNG or WebP · max 10 MB</p>
         </div>
         <span className="rounded-full bg-accent-dark px-6 py-2.5 text-sm font-semibold text-white transition-colors group-hover:bg-emerald-800">
           Choose photo

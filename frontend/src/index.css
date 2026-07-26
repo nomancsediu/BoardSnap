@@ -17,6 +17,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -27,6 +28,17 @@ body {
     radial-gradient(ellipse 70% 45% at 100% 0%, #e7f0ea 0%, transparent 50%),
     linear-gradient(180deg, #f4faf6 0%, #eef5f0 40%, #f7faf8 100%);
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Never let long words, URLs or code push the layout sideways on phones. */
+h1, h2, h3, h4, p, li, span, td, th, button, a {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+img, svg, video {
+  max-width: 100%;
 }
 
 .font-display {
@@ -50,6 +62,22 @@ body {
     padding-left: 20px;
     padding-right: 20px;
   }
+}
+
+@media (max-width: 480px) {
+  .shell {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Horizontal tab strip scrolls cleanly on small screens */
+.tab-strip {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-strip::-webkit-scrollbar {
+  display: none;
 }
 
 /* Flashcard 3D flip */
@@ -193,6 +221,30 @@ body {
   margin: 0.5rem 0;
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+/* Mobile typography + overflow safety for generated content */
+@media (max-width: 640px) {
+  .prose-notes h1 { font-size: 1.4rem; }
+  .prose-notes h2 { font-size: 1.15rem; }
+  .prose-notes h3 { font-size: 1rem; }
+  .prose-notes p,
+  .prose-notes li { line-height: 1.8; }
+  .prose-notes ul,
+  .prose-notes ol { margin-left: 1.1rem; }
+  .prose-notes pre { padding: 0.85rem 0.9rem; font-size: 0.82rem; border-radius: 0.85rem; }
+  .prose-notes code { font-size: 0.8em; }
+  .prose-notes .katex-display { padding: 0.7rem 0.75rem; margin: 0.85rem 0; }
+  .prose-notes .katex { font-size: 1em; }
+  .prose-flash { font-size: 1rem; }
+}
+
+/* Wide markdown tables scroll instead of stretching the page */
+.prose-notes table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fadeUp {

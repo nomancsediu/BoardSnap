@@ -56,8 +56,9 @@ def _require_api_key() -> None:
         raise HTTPException(500, "GEMINI_API_KEY is not configured on the server")
 
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def health() -> dict:
+    """UptimeRobot / Render health probe — supports GET and HEAD."""
     return {"status": "ok", "model": MODEL_ID, "api_key_configured": bool(os.environ.get("GEMINI_API_KEY"))}
 
 

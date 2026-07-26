@@ -55,7 +55,7 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-6 py-4">
-      <div className="flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-board/10 bg-white px-4 py-3">
+      <div className="flex w-full flex-wrap items-center justify-between gap-3 rounded-2xl border border-board/10 bg-white px-3 py-3 sm:px-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-semibold text-board">Difficulty</span>
           {(['mixed', 'hard'] as const).map((d) => (
@@ -95,8 +95,8 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
             className={`flip-card w-full cursor-pointer select-none ${flipped ? 'flipped' : ''}`}
             onClick={() => setFlipped((f) => !f)}
           >
-            <div className="flip-card-inner h-80 w-full">
-              <div className="flip-face absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.75rem] bg-board p-8 text-center shadow-xl sm:p-10">
+            <div className="flip-card-inner h-72 w-full sm:h-80">
+              <div className="flip-face absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.5rem] bg-board p-5 text-center shadow-xl sm:rounded-[1.75rem] sm:p-10">
                 <span className="text-[11px] font-bold tracking-[0.2em] text-accent uppercase">
                   Question
                 </span>
@@ -104,7 +104,7 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
                   {cards[index].question}
                 </MathText>
               </div>
-              <div className="flip-face flip-back absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.75rem] bg-accent-dark p-8 text-center shadow-xl sm:p-10">
+              <div className="flip-face flip-back absolute inset-0 flex flex-col items-center justify-center gap-4 overflow-y-auto rounded-[1.5rem] bg-accent-dark p-5 text-center shadow-xl sm:rounded-[1.75rem] sm:p-10">
                 <span className="text-[11px] font-bold tracking-[0.2em] text-white/80 uppercase">
                   Answer
                 </span>
@@ -115,14 +115,14 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex w-full items-center justify-center gap-3 sm:gap-4">
             <button
               onClick={() => go(-1)}
-              className="rounded-full border border-board/15 bg-white px-5 py-2.5 text-sm font-semibold text-board transition-colors hover:bg-mist"
+              className="shrink-0 rounded-full border border-board/15 bg-white px-4 py-2.5 text-sm font-semibold text-board transition-colors hover:bg-mist sm:px-5"
             >
               Previous
             </button>
-            <div className="flex gap-1.5">
+            <div className="flex max-w-[40%] flex-wrap justify-center gap-1.5">
               {cards.map((_, i) => (
                 <span
                   key={i}
@@ -134,7 +134,7 @@ export default function FlashcardsTab({ cards, notesMarkdown, onAppendCards }: P
             </div>
             <button
               onClick={() => go(1)}
-              className="rounded-full border border-board/15 bg-white px-5 py-2.5 text-sm font-semibold text-board transition-colors hover:bg-mist"
+              className="shrink-0 rounded-full border border-board/15 bg-white px-4 py-2.5 text-sm font-semibold text-board transition-colors hover:bg-mist sm:px-5"
             >
               Next
             </button>
